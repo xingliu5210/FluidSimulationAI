@@ -77,7 +77,7 @@ void UGAPathComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("TickComponent: bDestinationValid = false! Pathfinding skipped."));
+		// UE_LOG(LogTemp, Error, TEXT("TickComponent: bDestinationValid = false! Pathfinding skipped."));
 	}
 
 	// Super important! Otherwise, unbelievably, the Tick event in Blueprint won't get called

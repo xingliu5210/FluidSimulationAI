@@ -244,8 +244,8 @@ void UGAPerceptionComponent::UpdateTargetData(UGATargetComponent* TargetComponen
 		}
 
 		// Debugging logs (optional)
-		UE_LOG(LogTemp, Warning, TEXT("Target Awareness: %f, LOS: %s, Distance: %f"),
-			TargetData->Awareness, TargetData->bClearLos ? TEXT("TRUE") : TEXT("FALSE"), FMath::Sqrt(DistSquared));
+		// UE_LOG(LogTemp, Warning, TEXT("Target Awareness: %f, LOS: %s, Distance: %f"),
+			// TargetData->Awareness, TargetData->bClearLos ? TEXT("TRUE") : TEXT("FALSE"), FMath::Sqrt(DistSquared));
 	}
 }
 

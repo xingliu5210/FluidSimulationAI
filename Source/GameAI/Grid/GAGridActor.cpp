@@ -174,6 +174,7 @@ FVector2D AGAGridActor::GetCellGridSpacePosition(const FCellRef& CellRef) const
 ECellData AGAGridActor::GetCellData(const FCellRef &CellRef) const
 {
 	int32 CellIndex = CellRefToIndex(CellRef);
+	if (!Data.IsValidIndex(CellIndex)) return ECellData::CellDataNone;
 	return Data[CellIndex];
 }
 
