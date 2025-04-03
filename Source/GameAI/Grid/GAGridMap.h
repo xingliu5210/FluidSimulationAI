@@ -80,6 +80,7 @@ struct FGAGridMap
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<float> Data;
+	TArray<FVector> VectorData;
 
 
 	bool CellRefToLocal(const FCellRef& Cell, int32& X, int32& Y) const;
@@ -91,6 +92,7 @@ struct FGAGridMap
 	bool GetMaxValue(float& MaxValueOut, float IgnoreThreshold = FLT_MAX) const;
 
 	bool SetValue(const FCellRef& Cell, float Value);
+	bool SetVectorData(const FCellRef& Cell, FVector DirectionVector);
 
 
 	FORCEINLINE bool IsValid() const

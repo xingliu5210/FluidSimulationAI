@@ -139,5 +139,18 @@ bool FGAGridMap::SetValue(const FCellRef& Cell, float Value)
 	return false;
 }
 
+bool FGAGridMap::SetVectorData(const FCellRef& Cell, FVector DirectionVector)
+{
+	int32 X, Y;
+	if (CellRefToLocal(Cell, X, Y))
+	{
+		int32 Index = GridBounds.GetWidth() * Y + X;
+		check(Data.IsValidIndex(Index));
+		VectorData[Index] = DirectionVector;
+		return true;
+	}
+	return false;
+}
+
 
 UE_DISABLE_OPTIMIZATION
