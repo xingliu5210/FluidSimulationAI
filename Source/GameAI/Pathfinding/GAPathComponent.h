@@ -65,6 +65,9 @@ class UGAPathComponent : public UActorComponent
 	bool Dijkstra(const FVector& StartPoint, FGAGridMap& DistanceMapOut, TMap<FCellRef, FCellRef>& PrevMap);
 
 	UFUNCTION(BlueprintCallable)
+	bool FlowDijkstra(const FVector& StartPoint, FGAGridMap& FlowMapOut);
+
+	UFUNCTION(BlueprintCallable)
 	void ReconstructPath(const FCellRef& EndCell, const TMap<FCellRef, FCellRef>& PrevMap, TArray<FPathStep>& PathOut) const;
 
 	UFUNCTION(BlueprintCallable)
@@ -106,6 +109,12 @@ class UGAPathComponent : public UActorComponent
 
 	UPROPERTY(BlueprintReadOnly)
 	FCellRef DestinationCell;
+
+	UPROPERTY(BlueprintReadOnly)
+	FGAGridMap FlowDistanceMap;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	AActor* RiverStart;
 
 	// State ------------------------
 

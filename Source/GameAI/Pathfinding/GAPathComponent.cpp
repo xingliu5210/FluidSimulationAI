@@ -12,6 +12,14 @@ UGAPathComponent::UGAPathComponent(const FObjectInitializer& ObjectInitializer)
 
 	// A bit of Unreal magic to make TickComponent below get called
 	PrimaryComponentTick.bCanEverTick = true;
+
+	if (RiverStart != NULL)
+	{
+		FVector RiverStartPoint;
+
+		FlowDijkstra(RiverStartPoint, FlowDistanceMap);
+	}
+
 }
 
 
@@ -393,6 +401,84 @@ bool UGAPathComponent::Dijkstra(const FVector& StartPoint, FGAGridMap& DistanceM
 	for (const TPair<FCellRef, float>& Entry : CostMap)
 	{
 		DistanceMapOut.SetValue(Entry.Key, Entry.Value);
+	}
+
+	return true;
+
+}
+
+// Dijkstra's Algorithm to compute the shortest path distance from StartPoint
+bool UGAPathComponent::FlowDijkstra(const FVector& StartPoint, FGAGridMap& FlowMapOut)
+{
+	const AGAGridActor* Grid = GetGridActor();
+	if (!Grid) return false;
+
+	// Get starting cell reference
+	FCellRef StartCell = Grid->GetCellRef(StartPoint, true);
+	if (StartCell == FCellRef::Invalid) return false;
+
+	// PrevMap.Empty(); // Stores the path resconstruction
+
+	// Priority queue (Min-Heap) for exploration
+	struct FHeapNode
+	{
+		FCellRef Cell;
+		float Cost;
+
+		bool operator<(const FHeapNode& Other) const
+		{
+			return Cost < Other.Cost; // Min-heap behavior
+		}
+	};
+
+	TArray<FHeapNode> OpenSet; // Min-heap
+	TMap<FCellRef, float> CostMap; // Track Lowest cost per cell
+
+	// Initialize with the starting cell
+	CostMap.Add(StartCell, 0.0f);
+	OpenSet.HeapPush({ StartCell, 0.0f });
+
+	// Possible movement directions (8 neighbors for more flexible movement)
+	const TArray<FCellRef> Directions = {
+		{1, 0}, {-1, 0}, {0, 1}, {0, -1},  // Cardinal directions
+		{1, 1}, {-1, 1}, {1, -1}, {-1, -1} // Diagonal directions
+	};
+
+	// Dijkstra's Search Loop
+	while (OpenSet.Num() > 0)
+	{
+		// Extract cell with the lowest cost
+		FHeapNode CurrentNode;
+		OpenSet.HeapPop(CurrentNode);
+		FCellRef CurrentCell = CurrentNode.Cell;
+
+		// Explore neighbors
+		for (const FCellRef& Offset : Directions)
+		{
+			FCellRef Neighbor = { CurrentCell.X + Offset.X, CurrentCell.Y + Offset.Y };
+
+			// Ensure neighbor is within grid bounds and traversable
+			if (!Grid->IsCellRefInBounds(Neighbor)) continue;
+			ECellData Flags = Grid->GetCellData(Neighbor);
+			if (!EnumHasAllFlags(Flags, ECellData::CellDataTraversable)) continue;
+
+			// Compute cost (assuming uniform traversal cost)
+			float NewCost = CostMap[CurrentCell] + FVector::Dist(Grid->GetCellPosition(CurrentCell), Grid->GetCellPosition(Neighbor));
+
+			// If the new cost is lower than the stored cost, update it
+			if (!CostMap.Contains(Neighbor) || NewCost < CostMap[Neighbor])
+			{
+				CostMap.Add(Neighbor, NewCost);
+				// PrevMap.Add(Neighbor, CurrentCell); // Track Path reconstruction
+				OpenSet.HeapPush({ Neighbor, NewCost });
+			}
+		}
+	}
+
+	// Store results in the distance map
+	for (const TPair<FCellRef, float>& Entry : CostMap)
+	{
+		FlowMapOut.SetValue(Entry.Key, Entry.Value);
 	}
 
 	return true;
